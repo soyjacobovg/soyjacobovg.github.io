@@ -189,6 +189,32 @@
             .card { border-right: none; }
             .contact-left h2 { font-size: 4rem; }
         }
+                .form-confirmation {
+            display: none;
+            width: 100%;
+            padding: 60px 20px;
+            background: #8c8c8c;
+            color: #fff;
+            text-align: center;
+        }
+
+        .form-confirmation img {
+            width: min(280px, 75vw);
+            height: auto;
+            margin-bottom: 25px;
+        }
+
+        .form-confirmation h2 {
+            margin: 0;
+            font-size: clamp(3rem, 8vw, 6rem);
+            line-height: 0.9;
+        }
+
+        .form-confirmation p {
+            margin: 15px 0 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
     </style>
 </head>
 <body>
@@ -332,6 +358,11 @@
                 <textarea name="message" placeholder="¿Cómo te puedo ayudar?" rows="4" required></textarea>
                 <button type="submit" class="submit-btn">ENVIAR MENSAJE</button>
             </form>
+            <div class="form-confirmation" role="status" aria-live="polite">
+    <img src="Faviconbones.png" alt="Calavera de SoyJacoboVG">
+    <h2>¡GRACIAS!</h2>
+    <p>PÁSALA SUAVE.</p>
+</div>
         </section>
     </main>
 
@@ -339,6 +370,44 @@
         <div>© JACOBO VÁZQUEZ — 2026</div>
         <div style="opacity: 0.5;">HECHO CON PROPÓSITO</div>
     </footer>
+    <script>
+    const contactForm = document.querySelector('.contact-form');
+    const confirmation = document.querySelector('.form-confirmation');
+    const submitButton = contactForm.querySelector('.submit-btn');
+
+    contactForm.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        submitButton.disabled = true;
+        submitButton.textContent = 'ENVIANDO...';
+
+        try {
+            const response = await fetch(contactForm.action, {
+                method: 'POST',
+                body: new FormData(contactForm),
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            if (response.ok) {
+                contactForm.reset();
+                contactForm.style.display = 'none';
+                confirmation.style.display = 'block';
+                confirmation.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'center'
+                });
+            } else {
+                throw new Error('No se pudo enviar el formulario.');
+            }
+        } catch (error) {
+            alert('No pudimos enviar tu mensaje. Inténtalo nuevamente.');
+            submitButton.disabled = false;
+            submitButton.textContent = 'ENVIAR MENSAJE';
+        }
+    });
+</script>
 
 </body>
 </html>
