@@ -163,6 +163,21 @@
             padding: 0;
             background: #f2efe8;
         }
+        .tribu-preview { position: relative; }
+        .tribu-animation-toggle {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+        }
+        .tribu-animation-toggle:focus-visible {
+            outline: 3px solid #111;
+            outline-offset: -3px;
+        }
         .tribu-preview video {
             display: block;
             width: 100%;
@@ -397,9 +412,10 @@ a.card:focus-visible {outline:3px solid #b35034;outline-offset:-4px;}
                     <a class="project-visit" href="https://calculadora.universotribu.com/">Probar la calculadora ↗</a>
                 </div>
                 <div class="card-image tribu-preview">
-                    <video autoplay muted controls playsinline preload="none" width="960" height="540" poster="tribu-iphone-v2.webp" aria-label="Recorrido de Calculadora Tribu en iPhone para expositores y organizadores">
+                    <video id="tribu-animation" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="tribu-iphone-v2.webp" aria-label="Recorrido de Calculadora Tribu en iPhone para expositores y organizadores">
                         <source src="tribu-iphone-v2.mp4" type="video/mp4">
                     </video>
+                    <button class="tribu-animation-toggle" type="button" aria-controls="tribu-animation" aria-label="Reproducir animación de Calculadora Tribu"></button>
                 </div>
             </div>
         </section>
@@ -590,6 +606,51 @@ document.getElementById('app-caption').textContent = captions[current];
 }
 document.getElementById('app-prev').addEventListener('click',function(){showScreen(-1);});
 document.getElementById('app-next').addEventListener('click',function(){showScreen(1);});
+})();
+</script>
+
+<script>
+(function () {
+    const video = document.getElementById('tribu-animation');
+    const toggle = document.querySelector('.tribu-animation-toggle');
+    let userPaused = false;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    video.muted = true;
+    video.defaultMuted = true;
+    function updateLabel() {
+        toggle.setAttribute('aria-label',
+            (video.paused ? 'Reproducir' : 'Pausar') + ' animación de Calculadora Tribu');
+    }
+    function play() {
+        video.play().catch(updateLabel);
+    }
+    toggle.addEventListener('click', function () {
+        if (video.paused) {
+            userPaused = false;
+            play();
+        } else {
+            userPaused = true;
+            video.pause();
+        }
+    });
+    video.addEventListener('play', updateLabel);
+    video.addEventListener('pause', updateLabel);
+    if (reducedMotion.matches) {
+        video.autoplay = false;
+        video.pause();
+    }
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver(function (entries) {
+            if (entries[0].isIntersecting) {
+                if (!userPaused && !reducedMotion.matches) play();
+            } else {
+                video.pause();
+            }
+        }, { threshold: 0.25 }).observe(video);
+    } else if (!reducedMotion.matches) {
+        play();
+    }
+    updateLabel();
 })();
 </script>
 </body>
