@@ -178,7 +178,7 @@
             outline: 3px solid #111;
             outline-offset: -3px;
         }
-        .tribu-preview video {
+        .capabilities-grid .tribu-preview #tribu-animation {
             display: block;
             width: 100%;
             height: 100%;
@@ -412,10 +412,8 @@ a.card:focus-visible {outline:3px solid #b35034;outline-offset:-4px;}
                     <a class="project-visit" href="https://calculadora.universotribu.com/">Probar la calculadora ↗</a>
                 </div>
                 <div class="card-image tribu-preview">
-                    <video id="tribu-animation" autoplay muted loop playsinline preload="metadata" width="960" height="540" poster="tribu-iphone-v2.webp" aria-label="Recorrido de Calculadora Tribu en iPhone para expositores y organizadores">
-                        <source src="tribu-iphone-v2.mp4" type="video/mp4">
-                    </video>
-                    <button class="tribu-animation-toggle" type="button" aria-controls="tribu-animation" aria-label="Reproducir animación de Calculadora Tribu"></button>
+                    <img id="tribu-animation" src="tribu-recorrido-loop.webp" width="800" height="450" alt="Recorrido de Calculadora Tribu en iPhone para expositores y organizadores">
+                    <button class="tribu-animation-toggle" type="button" aria-controls="tribu-animation" aria-label="Pausar animación de Calculadora Tribu"></button>
                 </div>
             </div>
         </section>
@@ -611,46 +609,24 @@ document.getElementById('app-next').addEventListener('click',function(){showScre
 
 <script>
 (function () {
-    const video = document.getElementById('tribu-animation');
+    const animation = document.getElementById('tribu-animation');
     const toggle = document.querySelector('.tribu-animation-toggle');
-    let userPaused = false;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    video.muted = true;
-    video.defaultMuted = true;
-    function updateLabel() {
+    let paused = reducedMotion.matches;
+    function updateAnimation() {
+        animation.src = paused ? 'tribu-iphone-v2.webp' : 'tribu-recorrido-loop.webp';
         toggle.setAttribute('aria-label',
-            (video.paused ? 'Reproducir' : 'Pausar') + ' animación de Calculadora Tribu');
-    }
-    function play() {
-        video.play().catch(updateLabel);
+            (paused ? 'Reproducir' : 'Pausar') + ' animación de Calculadora Tribu');
     }
     toggle.addEventListener('click', function () {
-        if (video.paused) {
-            userPaused = false;
-            play();
-        } else {
-            userPaused = true;
-            video.pause();
-        }
+        paused = !paused;
+        updateAnimation();
     });
-    video.addEventListener('play', updateLabel);
-    video.addEventListener('pause', updateLabel);
-    if (reducedMotion.matches) {
-        video.autoplay = false;
-        video.pause();
-    }
-    if ('IntersectionObserver' in window) {
-        new IntersectionObserver(function (entries) {
-            if (entries[0].isIntersecting) {
-                if (!userPaused && !reducedMotion.matches) play();
-            } else {
-                video.pause();
-            }
-        }, { threshold: 0.25 }).observe(video);
-    } else if (!reducedMotion.matches) {
-        play();
-    }
-    updateLabel();
+    reducedMotion.addEventListener('change', function (event) {
+        paused = event.matches;
+        updateAnimation();
+    });
+    updateAnimation();
 })();
 </script>
 </body>
