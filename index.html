@@ -98,7 +98,10 @@
             transition: opacity 0.3s ease;
         }
         .bio-img .identity-slide { background: #ffff33; }
-        .bio-img .identity-slide:last-of-type { background: #dddbdc; }
+        .bio-img .identity-slide:last-of-type {
+            background: #dddbdc;
+            object-view-box: inset(0.5%);
+        }
         .bio-img .identity-slide.is-current { opacity: 1; }
         .bio-img .identity-photo { object-fit: cover; object-position: center 35%; }
         .identity-pause {
