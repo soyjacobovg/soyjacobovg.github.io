@@ -83,11 +83,35 @@
 
         .bio-img {
             min-height: 500px;
-            background-image: url('jacobo-cv.jpg');
-            filter: grayscale(1); 
-            background-size: cover;
-            background-position: center;
+            position: relative;
+            overflow: hidden;
+            background: #ffff33;
             border-right: 1px solid var(--border);
+        }
+        .bio-img .identity-slide {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .bio-img .identity-slide.is-current { opacity: 1; }
+        .bio-img .identity-photo { object-fit: cover; object-position: center 35%; }
+        .identity-pause {
+            position: absolute;
+            right: 16px;
+            bottom: 16px;
+            z-index: 1;
+            border: 1px solid #111;
+            padding: 7px 12px;
+            background: #fff;
+            color: #111;
+            cursor: pointer;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .bio-img .identity-slide { transition: none; }
         }
 
         .bio-text { padding: 80px 10%; display: flex; flex-direction: column; justify-content: center; }
@@ -345,7 +369,12 @@ a.card:focus-visible {outline:3px solid #b35034;outline-offset:-4px;}
         </section>
 
         <section class="bio">
-            <div class="bio-img" role="img" aria-label="Jacobo Vázquez"></div>
+            <div class="bio-img" aria-label="Identidad de Jacobo Vázquez">
+                <img class="identity-slide is-current" src="jacobo-calaca-amarilla.webp" alt="Calaca de SoyJacoboVG sobre amarillo">
+                <img class="identity-slide identity-photo" src="jacobo-gorra-color.webp" alt="Jacobo Vázquez con gorra y lentes, a color">
+                <img class="identity-slide" src="jacobo-calaca-gris.webp" alt="Calaca de SoyJacoboVG sobre gris">
+                <button class="identity-pause" type="button" aria-label="Pausar cambio de retratos">Pausar</button>
+            </div>
             <div class="bio-text">
                 <h2>El ritmo detrás del sistema.</h2>
                 <p>Nacido en la CDMX en el 77. Dibujante por instinto, baterista por pasión y arquitecto de sistemas por elección.</p>
@@ -627,6 +656,34 @@ document.getElementById('app-next').addEventListener('click',function(){showScre
         updateAnimation();
     });
     updateAnimation();
+})();
+</script>
+<script>
+(function () {
+    const slides = document.querySelectorAll('.identity-slide');
+    const button = document.querySelector('.identity-pause');
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let current = 0;
+    let paused = reducedMotion.matches;
+    let timer;
+    function schedule() {
+        clearInterval(timer);
+        button.textContent = paused ? 'Continuar' : 'Pausar';
+        button.setAttribute('aria-label', (paused ? 'Continuar' : 'Pausar') + ' cambio de retratos');
+        if (!paused && !document.hidden) {
+            timer = setInterval(function () {
+                const next = (current + 1) % slides.length;
+                if (!slides[next].complete || !slides[next].naturalWidth) return;
+                slides[current].classList.remove('is-current');
+                slides[next].classList.add('is-current');
+                current = next;
+            }, 2000);
+        }
+    }
+    button.addEventListener('click', function () { paused = !paused; schedule(); });
+    reducedMotion.addEventListener('change', function (event) { paused = event.matches; schedule(); });
+    document.addEventListener('visibilitychange', schedule);
+    schedule();
 })();
 </script>
 </body>
